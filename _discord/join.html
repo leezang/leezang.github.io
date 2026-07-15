@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MyGame 초대</title>
+  <style>
+    body{font-family:system-ui,"Malgun Gothic",sans-serif;background:#14161b;color:#e7e9ee;
+         display:flex;min-height:100vh;margin:0;align-items:center;justify-content:center;text-align:center}
+    .card{max-width:360px;padding:28px}
+    h1{font-size:1.3rem;margin:0 0 8px}
+    p{color:#9aa1ad;line-height:1.6}
+    a.btn{display:block;margin:10px 0;padding:12px;border-radius:10px;background:#5865f2;color:#fff;text-decoration:none;font-weight:600}
+    a.ghost{background:#23262e;color:#e7e9ee}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎮 MyGame 초대</h1>
+    <p id="msg">앱을 여는 중… 설치돼 있지 않으면 잠시 후 스토어로 이동합니다.</p>
+    <a class="btn" id="openApp" href="#">앱에서 열기</a>
+    <a class="btn ghost" id="store" href="#">스토어에서 설치</a>
+    <p id="info"></p>
+  </div>
+  <script>
+    // 이 페이지는 "앱 미설치"(또는 App Links 미검증) 상태에서만 보입니다.
+    // 앱이 설치+검증돼 있으면 OS가 이 URL을 가로채 이 페이지는 로드되지 않습니다.
+    var q = location.search.replace(/^\?/, '');            // 예: "lobby=ABC123&host=Alice"
+    var lobby = new URLSearchParams(q).get('lobby') || '';
+
+    var appUrl = 'mygame://join' + (q ? '?' + q : '');     // 커스텀 스킴으로 앱 열기 시도
+    var referrer = encodeURIComponent(q);                  // 설치 후 이어주기(deferred)용
+    var storeUrl = 'https://play.google.com/store/apps/details?id=com.example.deeplink&referrer=' + referrer;
+
+    document.getElementById('openApp').href = appUrl;
+    document.getElementById('store').href = storeUrl;
+    document.getElementById('info').textContent = lobby ? ('로비: ' + lobby) : '';
+
+    // 1) 앱 열기 시도 → 2) 안 열리면(=미설치) 스토어로 폴백
+    var t = Date.now();
+    window.location.href = appUrl;
+    setTimeout(function () {
+      if (Date.now() - t < 2500) window.location.replace(storeUrl);
+    }, 1500);
+  </script>
+</body>
+</html>
